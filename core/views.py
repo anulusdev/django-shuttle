@@ -4,14 +4,14 @@ from django.contrib import messages
 from core.models import Trip, Location, Status
 from django.core.mail import send_mail
 from django.db.models import Count
-# from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
     return render(request, 'core/home.html')
 
 
-# @login_required
+@login_required
 def location(request):
     faculty_value = request.GET.get("faculty")
     if request.user.is_authenticated:
