@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %} {# Tempalate's tags #}
 {% load crispy_forms_tags%}
 {% block content %}
-    <h2>Your Bus Group is now Full the driver is on his way</h2>
+    <!-- <h2>Your Bus Group is now Full the driver is on his way</h2> -->
 
     <a href="{% url 'home' %}"
             style="
@@ -9,7 +9,7 @@
             color: rgb(70, 155, 212); border-radius: 10px; font-weight: bold; text-decoration: none;">
             GO BACK TO HOMEPAGE</a>
 
-    <a href="{% url 'location' %}"
+    <a href="{% url 'location' %}?faculty={{ trip.locations__faculty }}"
             style="
             position: relative; right: 2px; bottom: 10px; padding: 5px 10px; 
             color: rgb(70, 155, 212); border-radius: 10px; font-weight: bold; text-decoration: none;">

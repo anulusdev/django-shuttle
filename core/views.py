@@ -4,68 +4,74 @@ from django.contrib import messages
 from core.models import Trip, Location, Status
 from django.core.mail import send_mail
 from django.db.models import Count
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 
 
 def home(request):
     return render(request, 'core/home.html')
 
 
-@login_required
+# @login_required
 def location(request):
     faculty_value = request.GET.get("faculty")
-
-    if request.method == 'POST':
-        form = LocationForm(request.POST)
-        if form.is_valid():
-            # if request.user.is_authenticated:
-            student_faculty = form.cleaned_data['faculty']
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            form = LocationForm(request.POST)
+            if form.is_valid():
+                student_faculty = form.cleaned_data['faculty']
             
-            open_trip = Trip.objects.filter(status=Status.OPEN, locations__faculty=student_faculty).annotate(num_students=Count("locations")).first()
-            
-            if open_trip:
-                location = Location.objects.create(
-                        name = form.cleaned_data['name'],
-                        faculty = student_faculty,
-                        trip = open_trip
-                )
-            else:
-                new_trip = Trip.objects.create(status=Status.OPEN)
-                location = Location.objects.create(
-                        name = form.cleaned_data['name'],
-                        faculty = student_faculty,
-                        trip = new_trip
-                )
-
-            # location = form
-            # location.trip = open_trip  
-                    
-            location.trip.save()
-            # location.save()
-            trip = location.trip
-            # grouped_list = Location.objects.values('faculty').annotate(count=Count('pk'))
-            sent = False
-            # for faculties in grouped_list:
-            if trip.locations.count() == 3:
-                trip.mark_full()
-                trip.save()
-
-                send_mail('Notification', 'You have a list of people', 'khaleedsemilore@gmail.com', 
-                ['khaleedalhazan@gmail.com'])
-                sent = True
-                trip.mark_complete()
-                trip.save()
-                messages.success(request, f"Your Bus Group from {student_faculty} is now Full the driver has been notified") 
-                return redirect('complete')  
+                open_trip = Trip.objects.filter(
+                            status=Status.OPEN, 
+                            locations__faculty=student_faculty
+                            ).annotate(
+                            num_students=Count("locations")
+                            ).first()
                 
-            else:
-                messages.success(request, f"Your Ride is being processed, looking for others around you ")
-            # messages.warning(request, f"Sign Up or Log In to Enjoy More")
-            return redirect('home')
+                if open_trip:
+                    location = Location.objects.create(
+                            name = form.cleaned_data['name'],
+                            faculty = student_faculty,
+                            trip = open_trip
+                    )
+                else:
+                    new_trip = Trip.objects.create(status=Status.OPEN)
+                    location = Location.objects.create(
+                            name = form.cleaned_data['name'],
+                            faculty = student_faculty,
+                            trip = new_trip
+                    )
+
+                # location = form
+                # location.trip = open_trip  
+                        
+                location.trip.save()
+                # location.save()
+                trip = location.trip
+                # grouped_list = Location.objects.values('faculty').annotate(count=Count('pk'))
+                sent = False
+                # for faculties in grouped_list:
+                if trip.locations.count() == 3:
+                    trip.mark_full()
+                    trip.save()
+
+                    send_mail('Notification', f'You have a list of people at {student_faculty}', 'khaleedsemilore@gmail.com', 
+                    ['khaleedalhazan@gmail.com'])
+                    sent = True
+                    trip.mark_complete()
+                    trip.save()
+                    messages.success(request, f"Your Bus Group for {student_faculty} is now Full the driver has been notified") 
+                    return redirect('complete')  
                     
+                else:
+                    messages.success(request, f"Your Ride is being processed, looking for others around you ")
+                    return redirect('home')
+                    
+        else:
+            form = LocationForm(initial={'faculty': faculty_value})
+        return render(request, 'core/location.html', {'form': form})
     else:
-        form = LocationForm(initial={'faculty': faculty_value})
-    return render(request, 'core/location.html', {'form': form})
+        messages.warning(request, f"Sign Up or Log In to Enjoy More")
+        return redirect('login')
 
 def open_trips(request):
     trips = Trip.objects.filter(status='Open').values('locations__faculty', 'status').annotate(num_students=Count("locations"))
