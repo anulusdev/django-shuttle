@@ -58,7 +58,7 @@ Others: Gunicorn, Docker (optional for deployment)
 
 # Clone the repository
 
-git clone https://github.com/your-username/django-shuttle.git
+git clone (https://github.com/anulusdev/django-shuttle/).git
 cd django-shuttle
 
 
