@@ -48,7 +48,7 @@ Backend: Django (Python)
 
 Database: PostgreSQL
 
-Frontend: Django Templates (Bootstrap/Tailwind for styling)
+Frontend: Django Templates (Bootstrap)
 
 SMS Service: Google SMS API
 
